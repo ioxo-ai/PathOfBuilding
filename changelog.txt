@@ -1,3 +1,30 @@
+VERSION[beta][2026/02/13]
+
+--- New to Path of Building ---
+* Add support for Behemoth's Steel Willed Armour defence mod (LocalIdentity)
+
+--- User Interface ---
+* Dynamically position elements in items tab (meehl)
+
+--- Fixed Calculations ---
+* Fix Kinetic Fusillade projectile damage scaling not being capped by projectile count (Paliak)
+* Fix misc calculations based on spell suppression when evasion mastery is active (danielztolnai)
+* Fix Radiant Faith calculations when using Foulborn Choir of the Storm (OriginalThing)
+* Kinetic Fusillade MaxAPS calculation (nemrod10)
+* Fixed Kinetic Fusillade DPS and attack speed breakpoint calcs (Bobastic)
+* Fix Replica Nebulis damage calculation (ocombe)
+
+--- Fixed Behaviours ---
+* Fix Hand of Phrecia enabling Generosity Auras (LocalIdentity)
+* Fix Sublime Vision +1 max Frenzy charges mod not working with Masterful Form (Paliak)
+
+--- Accuracy Improvements ---
+* Fix Maata's Teaching missing implicit (michelrtm)
+* Update The Queen's Hunger to show new veiled mods (michelrtm)
+
+--- Other changes ---
+* [pob2-port] Fix HTTP/2 response headers parsing (github-actions[bot])
+
 VERSION[2.60.0][2026/01/28]
 
 --- New to Path of Building ---

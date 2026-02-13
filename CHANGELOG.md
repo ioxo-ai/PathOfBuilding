@@ -1,5 +1,32 @@
 # Changelog
 
+## [beta](https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/tree/beta) (2026/02/13)
+
+[Full Changelog](https://github.com/PathOfBuildingCommunity/PathOfBuilding/compare/v2.60.0...beta)
+
+
+## What's Changed
+### New to Path of Building
+- Add support for Behemoth's Steel Willed Armour defence mod [\#9449](https://github.com/PathOfBuildingCommunity/PathOfBuilding/pull/9449) ([LocalIdentity](https://github.com/LocalIdentity))
+### User Interface
+- Dynamically position elements in items tab [\#9440](https://github.com/PathOfBuildingCommunity/PathOfBuilding/pull/9440) ([meehl](https://github.com/meehl))
+### Fixed Calculations
+- Fix Kinetic Fusillade projectile damage scaling not being capped by projectile count [\#9443](https://github.com/PathOfBuildingCommunity/PathOfBuilding/pull/9443) ([Paliak](https://github.com/Paliak))
+- Fix misc calculations based on spell suppression when evasion mastery is active [\#9405](https://github.com/PathOfBuildingCommunity/PathOfBuilding/pull/9405) ([danielztolnai](https://github.com/danielztolnai))
+- Fix Radiant Faith calculations when using Foulborn Choir of the Storm [\#9399](https://github.com/PathOfBuildingCommunity/PathOfBuilding/pull/9399) ([OriginalThing](https://github.com/OriginalThing))
+- Kinetic Fusillade MaxAPS calculation [\#9362](https://github.com/PathOfBuildingCommunity/PathOfBuilding/pull/9362) ([nemrod10](https://github.com/nemrod10))
+- Fixed Kinetic Fusillade DPS and attack speed breakpoint calcs [\#9452](https://github.com/PathOfBuildingCommunity/PathOfBuilding/pull/9452) ([Bobastic](https://github.com/Bobastic))
+- Fix Replica Nebulis damage calculation [\#9457](https://github.com/PathOfBuildingCommunity/PathOfBuilding/pull/9457) ([ocombe](https://github.com/ocombe))
+### Fixed Behaviours
+- Fix Hand of Phrecia enabling Generosity Auras [\#9448](https://github.com/PathOfBuildingCommunity/PathOfBuilding/pull/9448) ([LocalIdentity](https://github.com/LocalIdentity))
+- Fix Sublime Vision +1 max Frenzy charges mod not working with Masterful Form [\#9442](https://github.com/PathOfBuildingCommunity/PathOfBuilding/pull/9442) ([Paliak](https://github.com/Paliak))
+### Accuracy Improvements
+- Fix Maata's Teaching missing implicit [\#9454](https://github.com/PathOfBuildingCommunity/PathOfBuilding/pull/9454) ([michelrtm](https://github.com/michelrtm))
+- Update The Queen's Hunger to show new veiled mods [\#9455](https://github.com/PathOfBuildingCommunity/PathOfBuilding/pull/9455) ([michelrtm](https://github.com/michelrtm))
+### Other changes
+- [pob2-port] Fix HTTP/2 response headers parsing [\#9408](https://github.com/PathOfBuildingCommunity/PathOfBuilding/pull/9408) ([github-actions](https://github.com/github-actions)[bot])
+
+
 ## [v2.60.0](https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/tree/v2.60.0) (2026/01/28)
 
 [Full Changelog](https://github.com/PathOfBuildingCommunity/PathOfBuilding/compare/v2.59.1...v2.60.0)
