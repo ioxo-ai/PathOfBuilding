@@ -2,6 +2,8 @@
 -- This wrapper allows the program to run headless on any OS (in theory)
 -- It can be run using a standard lua interpreter, although LuaJIT is preferable
 
+-- Set package path for runtime/lua modules
+package.path = package.path .. ";../runtime/lua/?.lua;runtime/lua/?.lua;../runtime/lua/?/init.lua;runtime/lua/?/init.lua"
 
 -- Callbacks
 local callbackTable = { }
@@ -46,6 +48,9 @@ end
 -- Rendering
 function RenderInit(flag, ...) end
 function GetScreenSize()
+	return 1920, 1080
+end
+function GetVirtualScreenSize()
 	return 1920, 1080
 end
 function GetScreenScale()

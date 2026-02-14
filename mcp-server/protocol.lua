@@ -34,7 +34,7 @@ protocol.TOOLS = {
 					description = "빌드 파일명 또는 경로"
 				},
 				skill_index = {
-					type = ["number", "string"],
+					type = {"number", "string"},
 					description = "계산할 스킬 그룹 인덱스 (1~N) 또는 'all' (기본값: 1)"
 				},
 				boss_type = {
