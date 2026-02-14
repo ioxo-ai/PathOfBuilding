@@ -86,45 +86,129 @@ Item:ParseRaw(itemText)           -- 게임 아이템 텍스트 파싱
 ```json
 {
   "build_name": "MyBuild",           // 빌드 파일명 또는 경로
-  "skill_index": 1                   // (선택) 계산할 스킬 인덱스 (기본값: 활성 스킬)
+  "skill_index": 1,                  // (선택) 계산할 스킬 그룹 인덱스 (기본값: 1번 스킬 그룹)
+  "boss_type": "Pinnacle",           // (선택) 보스 타입: "None", "Boss", "Pinnacle", "Uber" (기본값: "None")
+  "calculation_mode": "EFFECTIVE"    // (선택) 계산 모드: "UNBUFFED", "BUFFED", "COMBAT", "EFFECTIVE" (기본값: "EFFECTIVE")
 }
 ```
 
-**출력**:
+**출력 필드 설명**:
 ```json
 {
   "character": {
-    "name": "MyBuild",
-    "level": 95,
-    "class": "Shadow",
-    "ascendancy": "Assassin"
+    "name": "MyBuild",               // 빌드 이름
+    "level": 95,                     // 캐릭터 레벨
+    "class": "Shadow",               // 기본 클래스
+    "ascendancy": "Assassin"         // 승급 클래스
   },
+
+  "config": {
+    "boss_type": "Pinnacle",         // 적용된 보스 타입
+    "calculation_mode": "EFFECTIVE"  // 적용된 계산 모드
+  },
+
+  // === DPS 통계 ===
   "dps": {
-    "total_dps": 5234567.89,
-    "combined_dps": 6123456.78,       // DoT 포함 종합 DPS
-    "hit_dps": 5234567.89,
-    "dot_dps": 888888.89,
+    // --- 메인 DPS 지표 ---
+    "total_dps": 5234567.89,         // 스킬의 순수 히트 DPS (초당 데미지, DoT 제외)
+                                     // = AverageHit × HitRate (attack/cast speed × hit chance)
+
+    "combined_dps": 6123456.78,      // 히트 + 지속 데미지(DoT) 종합 DPS
+                                     // 실제 전투에서 적에게 가하는 초당 총 데미지
+
+    "total_dot_dps": 888888.89,      // 모든 지속 데미지(DoT) 합계
+                                     // Ignite + Poison + Bleed + 기타 DoT 효과
+
+    "average_hit": 123456.78,        // 단일 히트의 평균 데미지
+                                     // 크리티컬 확률 고려한 기댓값
+
+    // --- 상태이상(Ailment) DPS ---
     "ailments": {
-      "ignite_dps": 234567.89,
-      "poison_dps": 456789.12,
-      "bleed_dps": 197531.88
+      "ignite_dps": 234567.89,       // 화상(Ignite) 초당 데미지
+      "poison_dps": 456789.12,       // 중독(Poison) 초당 데미지 (모든 스택 합계)
+      "bleed_dps": 197531.88,        // 출혈(Bleed) 초당 데미지
+      "total_poison_stacks": 15      // 평균 중독 스택 수
+    },
+
+    // --- 공격/시전 속도 ---
+    "speed": {
+      "attack_rate": 6.5,            // 초당 공격 횟수 (attack 스킬인 경우)
+      "cast_rate": 4.2,              // 초당 시전 횟수 (spell 스킬인 경우)
+      "hit_chance": 100.0            // 명중률 (%)
     }
   },
+
+  // === 방어 통계 ===
   "defense": {
-    "life": 4567,
-    "energy_shield": 2345,
-    "mana": 1234,
-    "evasion": 45678,
-    "armor": 12345,
-    "block_chance": 45.5,
-    "spell_block_chance": 30.0
+    // --- 생명력/에너지 실드 ---
+    "life": 4567,                    // 최대 생명력
+    "energy_shield": 2345,           // 최대 에너지 실드
+    "mana": 1234,                    // 최대 마나
+    "total_pool": 6912,              // 총 생존력 (Life + ES)
+
+    // --- 물리 방어 ---
+    "evasion": 45678,                // 회피력 수치
+    "evasion_chance": 68.5,          // 회피 확률 (%)
+    "armor": 12345,                  // 방어력 수치
+    "physical_reduction": 35.2,      // 물리 피해 감소율 (%) - 보통 공격 기준
+
+    // --- 블록 ---
+    "block_chance": 45.5,            // 공격 블록 확률 (%)
+    "spell_block_chance": 30.0,      // 주문 블록 확률 (%)
+
+    // --- 저항 ---
+    "resistances": {
+      "fire": 75,                    // 화염 저항 (%)
+      "cold": 75,                    // 냉기 저항 (%)
+      "lightning": 75,               // 번개 저항 (%)
+      "chaos": -15                   // 카오스 저항 (%)
+    },
+
+    // --- EHP (Effective Hit Points) ---
+    "ehp": {
+      "physical": 125000,            // 물리 데미지 EHP
+      "elemental": 180000,           // 원소 데미지 평균 EHP
+      "chaos": 95000                 // 카오스 데미지 EHP
+    }
   },
-  "active_skill": "Blade Vortex"
+
+  // === 스킬 정보 ===
+  "active_skill": {
+    "name": "Blade Vortex",          // 활성 스킬 이름
+                                     // 현재 계산에 사용된 메인 스킬
+                                     // 빌드에 여러 스킬이 있을 때 이 필드로 구분
+
+    "socket_group": 1,               // 소켓 그룹 번호 (1~N)
+    "skill_type": "Spell",           // 스킬 유형: "Attack", "Spell", "Minion" 등
+    "mana_cost": 45,                 // 마나 소모량
+    "skill_part": "Default"          // 스킬 파트 (일부 스킬은 여러 파트로 나뉨)
+  }
 }
 ```
 
+**여러 스킬이 있을 때 처리 방법**:
+1. **기본 동작**: `skill_index` 미지정 시 첫 번째 스킬 그룹 사용
+2. **특정 스킬 선택**: `skill_index` (1~N)로 원하는 소켓 그룹 지정
+3. **모든 스킬 조회**: `skill_index: "all"` 사용 시 배열로 각 스킬의 DPS 반환
+   ```json
+   {
+     "skills": [
+       { "active_skill": { "name": "Blade Vortex", ... }, "dps": {...}, "defense": {...} },
+       { "active_skill": { "name": "Blade Blast", ... }, "dps": {...}, "defense": {...} }
+     ]
+   }
+   ```
+
+**보스별 DPS 계산**:
+- **"None"** (기본): 일반 몬스터 대상 (레벨 83, 저항 0%)
+- **"Boss"**: 표준 보스 (상태이상 임계치 +488%, 저항 40%)
+- **"Pinnacle"**: 가디언/핀나클 보스 (Maven, Shaper 등, 레벨 84, 저항 50%)
+- **"Uber"**: 우버 핀나클 보스 (받는 데미지 -70%, 레벨 85)
+
+보스 타입에 따라 `total_dps`, `combined_dps`, `ailments` 값이 크게 달라짐 (저항/임계치 적용).
+
 #### 2. `simulate_equipment_change`
-**설명**: 특정 슬롯의 장비를 교체했을 때 DPS 변화 계산
+**설명**: 특정 슬롯의 장비를 교체했을 때 DPS 및 방어력 변화 계산
 
 **입력**:
 ```json
@@ -132,28 +216,106 @@ Item:ParseRaw(itemText)           -- 게임 아이템 텍스트 파싱
   "build_name": "MyBuild",
   "slot": "Weapon 1",               // "Helmet", "Body Armour", "Gloves", "Boots", "Ring 1", etc.
   "item_text": "Rarity: Rare\n...", // 게임에서 복사한 아이템 텍스트
-  "keep_changes": false             // (선택) true면 빌드에 영구 적용
+  "keep_changes": false,            // (선택) true면 빌드에 영구 적용
+  "boss_type": "Pinnacle",          // (선택) 보스 타입 (get_character_dps와 동일)
+  "calculation_mode": "EFFECTIVE"   // (선택) 계산 모드
 }
 ```
 
-**출력**:
+**출력** (get_character_dps의 전체 구조를 before/after로 반환):
 ```json
 {
+  // === 변경 전 통계 (전체) ===
   "before": {
     "item_name": "Current Weapon",
-    "total_dps": 5234567.89
+    "item_rarity": "Rare",
+
+    // get_character_dps와 동일한 구조
+    "character": { "name": "MyBuild", "level": 95, "class": "Shadow", "ascendancy": "Assassin" },
+    "config": { "boss_type": "Pinnacle", "calculation_mode": "EFFECTIVE" },
+
+    "dps": {
+      "total_dps": 5234567.89,
+      "combined_dps": 6123456.78,
+      "total_dot_dps": 888888.89,
+      "average_hit": 123456.78,
+      "ailments": { "ignite_dps": 234567.89, "poison_dps": 456789.12, "bleed_dps": 197531.88 },
+      "speed": { "attack_rate": 6.5, "hit_chance": 100.0 }
+    },
+
+    "defense": {
+      "life": 4567,
+      "energy_shield": 2345,
+      "mana": 1234,
+      "total_pool": 6912,
+      "evasion": 45678,
+      "evasion_chance": 68.5,
+      "armor": 12345,
+      "physical_reduction": 35.2,
+      "block_chance": 45.5,
+      "spell_block_chance": 30.0,
+      "resistances": { "fire": 75, "cold": 75, "lightning": 75, "chaos": -15 },
+      "ehp": { "physical": 125000, "elemental": 180000, "chaos": 95000 }
+    },
+
+    "active_skill": { "name": "Blade Vortex", "socket_group": 1, "skill_type": "Spell" }
   },
+
+  // === 변경 후 통계 (전체) ===
   "after": {
     "item_name": "New Weapon",
-    "total_dps": 6123456.78
+    "item_rarity": "Unique",
+
+    "character": { "name": "MyBuild", "level": 95, "class": "Shadow", "ascendancy": "Assassin" },
+    "config": { "boss_type": "Pinnacle", "calculation_mode": "EFFECTIVE" },
+
+    "dps": {
+      "total_dps": 6123456.78,
+      "combined_dps": 7234567.89,
+      "total_dot_dps": 1111111.00,
+      "average_hit": 145678.90,
+      "ailments": { "ignite_dps": 278901.23, "poison_dps": 612345.67, "bleed_dps": 219864.10 },
+      "speed": { "attack_rate": 7.2, "hit_chance": 100.0 }
+    },
+
+    "defense": {
+      "life": 4567,
+      "energy_shield": 2345,
+      "mana": 1234,
+      "total_pool": 6912,
+      "evasion": 43210,
+      "evasion_chance": 66.8,
+      "armor": 11000,
+      "physical_reduction": 33.5,
+      "block_chance": 50.0,
+      "spell_block_chance": 30.0,
+      "resistances": { "fire": 75, "cold": 75, "lightning": 75, "chaos": -10 },
+      "ehp": { "physical": 130000, "elemental": 180000, "chaos": 98000 }
+    },
+
+    "active_skill": { "name": "Blade Vortex", "socket_group": 1, "skill_type": "Spell" }
   },
+
+  // === 변화량 요약 ===
   "delta": {
-    "absolute": 888888.89,
-    "percent": 16.98
-  },
-  "recommendation": "upgrade"       // "upgrade", "downgrade", "sidegrade"
+    "dps": {
+      "total_dps": { "absolute": 888888.89, "percent": 16.98 },
+      "combined_dps": { "absolute": 1111111.11, "percent": 17.85 },
+      "average_hit": { "absolute": 22222.12, "percent": 18.0 }
+    },
+    "defense": {
+      "life": { "absolute": 0, "percent": 0 },
+      "total_pool": { "absolute": 0, "percent": 0 },
+      "armor": { "absolute": -1345, "percent": -10.9 },
+      "evasion": { "absolute": -2468, "percent": -5.4 },
+      "block_chance": { "absolute": 4.5, "percent": 9.9 },
+      "physical_ehp": { "absolute": 5000, "percent": 4.0 }
+    }
+  }
 }
 ```
+
+**참고**: `recommendation` 필드는 제거됨. 클라이언트가 delta 값을 보고 직접 판단.
 
 #### 3. `list_builds`
 **설명**: 사용 가능한 빌드 목록 반환
@@ -189,31 +351,57 @@ Item:ParseRaw(itemText)           -- 게임 아이템 텍스트 파싱
   "items": [
     "Rarity: Rare\n...",            // 아이템 1
     "Rarity: Unique\n..."           // 아이템 2
-  ]
+  ],
+  "boss_type": "Pinnacle",          // (선택) 보스 타입
+  "calculation_mode": "EFFECTIVE"   // (선택) 계산 모드
 }
 ```
 
 **출력**:
 ```json
 {
+  "current": {
+    "item_name": "Current Ring",
+    "total_dps": 5800000,
+    "combined_dps": 6500000,
+    "life": 4567,
+    "total_pool": 6912
+  },
+
   "comparisons": [
     {
+      "index": 0,
       "item_name": "Steel Ring",
+      "item_rarity": "Rare",
       "total_dps": 6000000,
-      "delta_from_current": 200000
+      "combined_dps": 6750000,
+      "life": 4567,
+      "total_pool": 6912,
+      "delta_from_current": {
+        "total_dps": { "absolute": 200000, "percent": 3.45 },
+        "combined_dps": { "absolute": 250000, "percent": 3.85 },
+        "life": { "absolute": 0, "percent": 0 }
+      }
     },
     {
+      "index": 1,
       "item_name": "Le Heup of All",
-      "total_dps": 5800000,
-      "delta_from_current": 0
+      "item_rarity": "Unique",
+      "total_dps": 5900000,
+      "combined_dps": 6600000,
+      "life": 4567,
+      "total_pool": 6912,
+      "delta_from_current": {
+        "total_dps": { "absolute": 100000, "percent": 1.72 },
+        "combined_dps": { "absolute": 100000, "percent": 1.54 },
+        "life": { "absolute": 0, "percent": 0 }
+      }
     }
-  ],
-  "best_option": {
-    "index": 0,
-    "item_name": "Steel Ring"
-  }
+  ]
 }
 ```
+
+**참고**: `best_option` 필드 제거. 클라이언트가 각 아이템의 `delta_from_current`를 보고 직접 판단.
 
 ---
 
@@ -298,11 +486,6 @@ echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | lua Launch.l
    - 잘못된 슬롯 이름
    - 아이템 파싱 실패
    - 호환되지 않는 아이템 (예: 무기를 헬멧 슬롯에)
-
-3. 추천 로직
-   - `delta.percent > 5%` → "upgrade"
-   - `delta.percent < -5%` → "downgrade"
-   - 그 외 → "sidegrade"
 
 **검증**:
 - 알려진 업그레이드 아이템으로 테스트
