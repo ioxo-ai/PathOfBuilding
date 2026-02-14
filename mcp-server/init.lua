@@ -4,7 +4,8 @@
 -- Main entry point for the MCP server
 --
 
-local json = require("dkjson")
+-- Load JSON library
+local json = dofile("runtime/lua/dkjson.lua")
 local protocol = dofile("mcp-server/protocol.lua")
 
 local mcpServer = {}

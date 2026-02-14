@@ -4,7 +4,8 @@
 -- Implements JSON-RPC 2.0 protocol for Model Context Protocol (MCP)
 --
 
-local json = require("dkjson")
+-- Load JSON library
+local json = dofile("runtime/lua/dkjson.lua")
 
 local protocol = {}
 
