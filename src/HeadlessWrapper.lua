@@ -180,40 +180,84 @@ function require(name)
 end
 
 
-dofile("Launch.lua")
-
--- Prevents loading of ModCache
--- Allows running mod parsing related tests without pushing ModCache
--- The CI env var will be true when run from github workflows but should be false for other tools using the headless wrapper 
-mainObject.continuousIntegrationMode = os.getenv("CI")
-
-runCallback("OnInit")
-runCallback("OnFrame") -- Need at least one frame for everything to initialise
-
-if mainObject.promptMsg then
-	-- Something went wrong during startup
-	print(mainObject.promptMsg)
-	io.read("*l")
-	return
+-- Check for MCP server mode
+local mcpServerMode = false
+local mcpDebugMode = false
+for i, arg in ipairs(arg or {}) do
+	if arg == "--mcp-server" then
+		mcpServerMode = true
+	elseif arg == "--mcp-debug" then
+		mcpDebugMode = true
+	end
 end
 
--- The build module; once a build is loaded, you can find all the good stuff in here
-build = mainObject.main.modes["BUILD"]
+if mcpServerMode then
+	-- MCP Server Mode: Run MCP server instead of GUI
+	dofile("Launch.lua")
 
--- Here's some helpful helper functions to help you get started
-function newBuild()
-	mainObject.main:SetMode("BUILD", false, "Help, I'm stuck in Path of Building!")
-	runCallback("OnFrame")
-end
-function loadBuildFromXML(xmlText, name)
-	mainObject.main:SetMode("BUILD", false, name or "", xmlText)
-	runCallback("OnFrame")
-end
-function loadBuildFromJSON(getItemsJSON, getPassiveSkillsJSON)
-	mainObject.main:SetMode("BUILD", false, "")
-	runCallback("OnFrame")
-	local charData = build.importTab:ImportItemsAndSkills(getItemsJSON)
-	build.importTab:ImportPassiveTreeAndJewels(getPassiveSkillsJSON, charData)
-	-- You now have a build without a correct main skill selected, or any configuration options set
-	-- Good luck!
+	-- Prevents loading of ModCache
+	mainObject.continuousIntegrationMode = os.getenv("CI")
+
+	runCallback("OnInit")
+	runCallback("OnFrame") -- Need at least one frame for everything to initialise
+
+	if mainObject.promptMsg then
+		-- Something went wrong during startup
+		io.stderr:write("Error during initialization: " .. mainObject.promptMsg .. "\n")
+		os.exit(1)
+	end
+
+	-- The build module
+	build = mainObject.main.modes["BUILD"]
+
+	-- Load MCP server
+	local mcpServer = dofile("mcp-server/init.lua")
+	mcpServer.DEBUG = mcpDebugMode
+
+	-- Initialize stub handlers (will be replaced with real handlers in Phase 2)
+	mcpServer.initializeStubHandlers()
+
+	-- Run MCP server
+	mcpServer.run()
+
+	os.exit(0)
+else
+	-- Normal headless mode (for tests, etc.)
+	dofile("Launch.lua")
+
+	-- Prevents loading of ModCache
+	-- Allows running mod parsing related tests without pushing ModCache
+	-- The CI env var will be true when run from github workflows but should be false for other tools using the headless wrapper
+	mainObject.continuousIntegrationMode = os.getenv("CI")
+
+	runCallback("OnInit")
+	runCallback("OnFrame") -- Need at least one frame for everything to initialise
+
+	if mainObject.promptMsg then
+		-- Something went wrong during startup
+		print(mainObject.promptMsg)
+		io.read("*l")
+		return
+	end
+
+	-- The build module; once a build is loaded, you can find all the good stuff in here
+	build = mainObject.main.modes["BUILD"]
+
+	-- Here's some helpful helper functions to help you get started
+	function newBuild()
+		mainObject.main:SetMode("BUILD", false, "Help, I'm stuck in Path of Building!")
+		runCallback("OnFrame")
+	end
+	function loadBuildFromXML(xmlText, name)
+		mainObject.main:SetMode("BUILD", false, name or "", xmlText)
+		runCallback("OnFrame")
+	end
+	function loadBuildFromJSON(getItemsJSON, getPassiveSkillsJSON)
+		mainObject.main:SetMode("BUILD", false, "")
+		runCallback("OnFrame")
+		local charData = build.importTab:ImportItemsAndSkills(getItemsJSON)
+		build.importTab:ImportPassiveTreeAndJewels(getPassiveSkillsJSON, charData)
+		-- You now have a build without a correct main skill selected, or any configuration options set
+		-- Good luck!
+	end
 end
