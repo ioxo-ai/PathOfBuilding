@@ -5,6 +5,10 @@
 *.code-workspace
 inspect.lua
 
+# Python
+__pycache__/
+*.pyc
+
 # Development files
 *.lnk
 
